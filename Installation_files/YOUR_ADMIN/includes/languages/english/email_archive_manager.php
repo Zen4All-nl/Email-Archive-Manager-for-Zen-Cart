@@ -51,9 +51,9 @@ define('TEXT_EMAIL_SUBJECT', 'Subject: ');
 define('TEXT_EMAIL_EXCERPT', 'Message Excerpt:');
 define('TEXT_EMAIL_NUMBER', 'Email #');
 
-define('RADIO_1_MONTH', ' 1 month');
-define('RADIO_6_MONTHS', ' 6 months');
-define('RADIO_1_YEAR', ' 12 months');
+define('RADIO_1_MONTH', '1 month');
+define('RADIO_6_MONTHS', '6 months');
+define('RADIO_1_YEAR', '12 months');
 define('TRIM_CONFIRM_WARNING', 'Warning: This will permanently remove e-mail from the archive.<br />Are you sure?');
 define('POPUP_CONFIRM_RESEND', 'Are you sure you want to resend this message?');
 define('POPUP_CONFIRM_DELETE', 'Are you sure you want to delete this message?');
@@ -67,6 +67,7 @@ define('IMAGE_ICON_EMAIL', ' Email Recipient ');
 define('IMAGE_ICON_DELETE', ' Delete Message ');
 
 define('BUTTON_SEARCH', 'Search Archive');
-define('BUTTON_TRIM_CONFIRM', 'Delete e-mail');
+define('BUTTON_TRIM_CONFIRM', 'Delete Email');
 define('BUTTON_CANCEL', 'Cancel');
-?>
+define('BUTTON_RESEND_EMAIL', 'Resend Email');
+define('BUTTON_DELETE_EMAIL', 'Delete Email');
