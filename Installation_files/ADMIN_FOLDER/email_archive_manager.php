@@ -63,7 +63,7 @@ $email_module_array[] = array(
   'id' => 1,
   'text' => TEXT_ALL_MODULES
 );
-foreach ($email_module as $iten) {
+foreach ($email_module as $item) {
   $email_module_array[] = array(
     'id' => $item['module'],
     'text' => $item['module']
