@@ -73,8 +73,8 @@ $search_sd = ((isset($_POST['start_date']) && zen_not_null($_POST['start_date'])
 $search_ed = ((isset($_POST['end_date']) && zen_not_null($_POST['end_date'])) ? true : false);
 $search_text = ((isset($_POST['text']) && zen_not_null($_POST['text'])) ? true : false);
 $search_module = ((isset($_POST['module']) && zen_not_null($_POST['module']) && $_POST['module'] != 1) ? true : false);
-$sd_raw = zen_date_raw($_POST['start_date']);
-$ed_raw = zen_date_raw($_POST['end_date']);
+$sd_raw = isset($_POST['start_date']) ? zen_date_raw($_POST['start_date']) : '';
+$ed_raw = isset($_POST['end_date']) ? zen_date_raw($_POST['end_date']) : '';
 ?>
 <!doctype html>
 <html <?php echo HTML_PARAMS; ?>>
