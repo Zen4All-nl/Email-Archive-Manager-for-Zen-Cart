@@ -272,10 +272,7 @@ $ed_raw = isset($_POST['end_date']) ? zen_date_raw($_POST['end_date']) : '';
         default:
           ?>
           <?php if ($action === 'print_format') { ?>
-            <h1>
-              <a href="<?php echo zen_href_link(FILENAME_EMAIL_HISTORY); ?>"><?php echo HEADING_TITLE; ?></a>
-              <td class="pageHeading text-right"><?php echo date('l M d, Y'); ?></td>
-            </h1>
+            <h1><a class="pageHeading" href="<?php echo zen_href_link(FILENAME_EMAIL_HISTORY); ?>"><?php echo HEADING_TITLE; ?></a>: <?php echo date('l M d, Y'); ?></h1>
           <?php } else { ?>
             <h1><?php echo HEADING_TITLE; ?></h1>
             <div class="col-sm-12">
