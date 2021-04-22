@@ -313,7 +313,7 @@ $ed_raw = isset($_POST['end_date']) ? zen_date_raw($_POST['end_date']) : '';
               <div class="form-group">
                 <?php echo zen_draw_label(HEADING_MODULE_SELECT, 'module', 'class="control-label col-sm-3"'); ?>
                 <div class="col-sm-9">
-                  <?php echo zen_draw_pull_down_menu('module', $email_module_array, $_POST['module'], 'class="form-control"');
+                  <?php echo zen_draw_pull_down_menu('module', $email_module_array, (empty($_POST['module']) ? '' : $_POST['module']), 'class="form-control"');
                   ?>
                 </div>
               </div>
