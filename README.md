@@ -5,6 +5,8 @@ Zen Cart has a great email archiving feature.  When enabled, every email sent th
 
 This plugin adds this functionality.
 
+Tested with Zen Cart 1.5.x and php8.
+
 I hope you find it useful, enjoy!
 
 --
@@ -52,8 +54,13 @@ The files are already arranged in the appropriate structure, and there are *no* 
 4. By default, email archiving is turned off; to start archiving emails, you must turn it on under
    admin->configuration->email options->Email Archiving Active?
 
+For display purposes, two constants are available to modify:
+define('SUBJECT_SIZE_LIMIT', 0); // restrict the subject line length. 0 means no restriction
+define('MESSAGE_SIZE_LIMIT', 600); // length of the message excerpt shown in the infoBox
 
-Tested & compatible with Zen Cart 1.5.x
+These are located in the main file:
+
+ADMIN_FOLDER\email_archive_manager.php
 
 ## Find a bug?  Have a feature idea?
 

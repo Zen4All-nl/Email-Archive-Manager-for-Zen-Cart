@@ -14,6 +14,10 @@
  * @license name Released under the GNU General Public License available at www.zen-cart.com/license/2_0.txt or see "license.txt" in the downloaded zip
  *
  */
+
+define('SUBJECT_SIZE_LIMIT', 0); // restrict the subject line length. 0 means no restriction
+define('MESSAGE_SIZE_LIMIT', 600); // length of the message excerpt shown in the infoBox
+
 require 'includes/application_top.php';
 
 $action = $_GET['action'] ?? '';
@@ -414,9 +418,10 @@ $ed_raw = isset($_POST['end_date']) ? zen_date_raw($_POST['end_date']) : '';
                       <td class="dataTableContent"><?php echo $item['email_to_address']; ?></td>
                       <td class="dataTableContent">
                         <?php
-                        echo substr($item['email_subject'], 0, SUBJECT_SIZE_LIMIT);
-                        if (strlen($item['email_subject']) > SUBJECT_SIZE_LIMIT) {
-                          echo MESSAGE_LIMIT_BREAK;
+                        if (SUBJECT_SIZE_LIMIT === 0) {
+                            echo $item['email_subject'];
+                        } elseif (strlen($item['email_subject']) > SUBJECT_SIZE_LIMIT) {
+                            echo substr($item['email_subject'], 0, SUBJECT_SIZE_LIMIT+3) . '&hellip;';
                         }
                         ?>
                       </td>
@@ -473,7 +478,7 @@ $ed_raw = isset($_POST['end_date']) ? zen_date_raw($_POST['end_date']) : '';
                   $contents[] = array('text' => '<b>' . TEXT_EMAIL_DATE_SENT . '</b>' . $archive->date_sent);
                   $contents[] = array('text' => '<b>' . TEXT_EMAIL_SUBJECT . '</b>' . $archive->email_subject);
                   $contents[] = array('text' => '<b>' . TEXT_EMAIL_EXCERPT . '</b>');
-                  $contents[] = array('text' => nl2br(substr($archive->email_text, 0, MESSAGE_SIZE_LIMIT)) . MESSAGE_LIMIT_BREAK);
+                  $contents[] = array('text' => nl2br(substr($archive->email_text, 0, MESSAGE_SIZE_LIMIT)) . '&hellip;');
                 }
 
                 // display sidebox

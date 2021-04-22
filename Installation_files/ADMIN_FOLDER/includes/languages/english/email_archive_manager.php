@@ -16,10 +16,6 @@
 //////////////////////////////////////////////////////////
 */
 
-define('SUBJECT_SIZE_LIMIT', 25);
-define('MESSAGE_SIZE_LIMIT', 550);
-define('MESSAGE_LIMIT_BREAK', '...');
-
 define('HEADING_TITLE', 'Email Archive Manager');
 define('HEADING_SEARCH_INSTRUCT', 'You may search by any combination of the following criteria...');
 
