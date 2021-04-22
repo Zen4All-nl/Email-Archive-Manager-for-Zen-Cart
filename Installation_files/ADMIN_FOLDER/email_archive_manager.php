@@ -18,8 +18,8 @@ require 'includes/application_top.php';
 
 $action = $_GET['action'] ?? '';
 $action = !empty($_POST['action']) ? $_POST['action'] : $action;
-switch ($action) {
 
+switch ($action) {
   case 'resend':
     // collect the e-mail data
     $email_sql = $db->Execute("SELECT *
@@ -32,7 +32,7 @@ switch ($action) {
     $messageStack->add_session(sprintf(SUCCESS_EMAIL_RESENT, $email->archive_id, $email->email_to_address), 'success');
     zen_redirect(zen_href_link(FILENAME_EMAIL_HISTORY));
     break;
-	
+
   case 'delete':
     $db->Execute("DELETE FROM " . TABLE_EMAIL_ARCHIVE . "
                   WHERE archive_id = " . (int)$_GET['archive_id']);
