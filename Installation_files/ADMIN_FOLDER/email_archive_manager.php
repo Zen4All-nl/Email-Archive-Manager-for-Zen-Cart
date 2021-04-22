@@ -16,9 +16,8 @@
  */
 require 'includes/application_top.php';
 
-$action = '';
-$action = (isset($_GET['action']) ? $_GET['action'] : '');
-$action = (isset($_POST['action']) && $_POST['action'] != '' ? $_POST['action'] : $action);
+$action = $_GET['action'] ?? '';
+$action = !empty($_POST['action']) ? $_POST['action'] : $action;
 switch ($action) {
   case 'resend':
     // collect the e-mail data
@@ -38,7 +37,7 @@ switch ($action) {
     zen_redirect(zen_href_link(FILENAME_EMAIL_HISTORY));
     break;
   case 'trim_confirm':
-    $age = $_POST['email_age'];
+    $age = !empty($_POST['email_age']) ? $_POST['email_age'] : '';
     if ($age == '1_months') {
       $cutoff_date = '1 MONTH';
     }
@@ -69,10 +68,10 @@ foreach ($email_module as $item) {
     'text' => $item['module']
   );
 }
-$search_sd = ((isset($_POST['start_date']) && zen_not_null($_POST['start_date'])) ? true : false);
-$search_ed = ((isset($_POST['end_date']) && zen_not_null($_POST['end_date'])) ? true : false);
-$search_text = ((isset($_POST['text']) && zen_not_null($_POST['text'])) ? true : false);
-$search_module = ((isset($_POST['module']) && zen_not_null($_POST['module']) && $_POST['module'] != 1) ? true : false);
+$search_sd = isset($_POST['start_date']) && zen_not_null($_POST['start_date']);
+$search_ed = isset($_POST['end_date']) && zen_not_null($_POST['end_date']);
+$search_text = isset($_POST['text']) && zen_not_null($_POST['text']);
+$search_module = isset($_POST['module']) && zen_not_null($_POST['module']) && $_POST['module'] !== '1';
 $sd_raw = isset($_POST['start_date']) ? zen_date_raw($_POST['start_date']) : '';
 $ed_raw = isset($_POST['end_date']) ? zen_date_raw($_POST['end_date']) : '';
 ?>
@@ -303,7 +302,7 @@ $ed_raw = isset($_POST['end_date']) ? zen_date_raw($_POST['end_date']) : '';
                 </div>
               </div>
               <?php
-              if (isset($_POST['text']) && $_POST['text'] != '') {
+              if (!empty($_POST['text'])) {
                 $keywords = zen_db_input(zen_db_prepare_input($_POST['text']));
                 ?>
                 <div class="form-group">
@@ -380,7 +379,7 @@ $ed_raw = isset($_POST['end_date']) ? zen_date_raw($_POST['end_date']) : '';
                     if ($search_sd || $search_ed || $search_text) {
                       $archive_search .= "AND ";
                     }
-                    $archive_search .= "module = '" . $_POST['module'] . "'" . PHP_EOL;
+                    $archive_search .= "module = '" . zen_db_prepare_input($_POST['module']) . "'" . PHP_EOL;
                   }
 
                   $archive_search .= "ORDER BY archive_id DESC";
@@ -474,7 +473,7 @@ $ed_raw = isset($_POST['end_date']) ? zen_date_raw($_POST['end_date']) : '';
                 if (zen_not_null($heading) && zen_not_null($contents)) {
                   ?>
                   <?php
-                  $box = new box;
+                  $box = new box();
                   echo $box->infoBox($heading, $contents);
                   ?>
                 <?php } ?>
