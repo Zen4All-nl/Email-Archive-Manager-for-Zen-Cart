@@ -272,9 +272,6 @@ $ed_raw = isset($_POST['end_date']) ? zen_date_raw($_POST['end_date']) : '';
               <a href="<?php echo zen_href_link(FILENAME_EMAIL_HISTORY); ?>"><?php echo HEADING_TITLE; ?></a>
               <td class="pageHeading text-right"><?php echo date('l M d, Y'); ?></td>
             </h1>
-            <div class="col-sm-12">
-              <p><?php echo $this_report; ?></p>
-            </div>
           <?php } else { ?>
             <h1><?php echo HEADING_TITLE; ?></h1>
             <div class="col-sm-12">
