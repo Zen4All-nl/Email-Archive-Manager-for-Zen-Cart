@@ -238,8 +238,7 @@ $ed_raw = isset($_POST['end_date']) ? zen_date_raw($_POST['end_date']) : '';
           <h1 class="pageHeading"><?php echo TEXT_TRIM_ARCHIVE; ?></h1>
           <?php echo zen_draw_form('trim_timeframe', FILENAME_EMAIL_HISTORY, 'action=trim_confirm', 'post', 'class="form-horizontal"'); ?>
           <div class="form-group">
-
-            <?php echo zen_draw_label(HEADING_TRIM_INSTRUCT, '', 'class="control-label col-sm-3"'); ?>
+              <div class="control-label col-sm-3"><?php echo HEADING_TRIM_INSTRUCT; ?></div>
             <div id="email_age_group" class="col-sm-9 col-md-6">
               <div class="radio">
                 <label><?php echo zen_draw_radio_field('email_age', '1_months', true) . ' ' . RADIO_1_MONTH . ' (' . date("m/d/Y", mktime(0, 0, 0, date("m") - 1, date("d"), date("Y"))) . ')'; ?></label>
@@ -271,7 +270,7 @@ $ed_raw = isset($_POST['end_date']) ? zen_date_raw($_POST['end_date']) : '';
           <?php if ($action === 'print_format') { ?>
             <h1>
               <a href="<?php echo zen_href_link(FILENAME_EMAIL_HISTORY); ?>"><?php echo HEADING_TITLE; ?></a>
-              <td class="pageHeading" align="right"><?php echo date('l M d, Y', time()); ?></td>
+              <td class="pageHeading text-right"><?php echo date('l M d, Y'); ?></td>
             </h1>
             <div class="col-sm-12">
               <p><?php echo $this_report; ?></p>
