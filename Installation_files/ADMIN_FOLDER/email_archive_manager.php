@@ -96,8 +96,8 @@ $ed_raw = isset($_POST['end_date']) ? zen_date_raw($_POST['end_date']) : '';
     }
     ?>
     <script>
-      var StartDate = new ctlSpiffyCalendarBox("StartDate", "search", "start_date", "btnDate1", "<?php echo (($_POST['start_date'] == '') ? '' : $_POST['start_date']); ?>", scBTNMODE_CUSTOMBLUE);
-      var EndDate = new ctlSpiffyCalendarBox("EndDate", "search", "end_date", "btnDate2", "<?php echo (($_POST['end_date'] == '') ? '' : $_POST['end_date']); ?>", scBTNMODE_CUSTOMBLUE);
+      var StartDate = new ctlSpiffyCalendarBox("StartDate", "search", "start_date", "btnDate1", "<?php echo (empty($_POST['start_date']) ? '' : $_POST['start_date']); ?>", scBTNMODE_CUSTOMBLUE);
+      var EndDate = new ctlSpiffyCalendarBox("EndDate", "search", "end_date", "btnDate2", "<?php echo (empty($_POST['end_date']) ? '' : $_POST['end_date']); ?>", scBTNMODE_CUSTOMBLUE);
     </script>
     <div class="container-fluid">
       <?php
