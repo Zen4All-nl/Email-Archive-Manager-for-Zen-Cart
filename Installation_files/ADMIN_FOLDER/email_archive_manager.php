@@ -245,13 +245,13 @@ $ed_raw = isset($_POST['end_date']) ? zen_date_raw($_POST['end_date']) : '';
               <div class="control-label col-sm-3"><?php echo HEADING_TRIM_INSTRUCT; ?></div>
             <div id="email_age_group" class="col-sm-9 col-md-6">
               <div class="radio">
-                <label><?php echo zen_draw_radio_field('email_age', '1_months', true) . ' ' . RADIO_1_MONTH . ' (' . date("m/d/Y", mktime(0, 0, 0, date("m") - 1, date("d"), date("Y"))) . ')'; ?></label>
+                <label><?php echo zen_draw_radio_field('email_age', '1_months', true) . ' ' . RADIO_1_MONTH . ' (' . date("m/d/Y", mktime(0, 0, 0, date("m") - 1, (int)date("d"), (int)date("Y"))) . ')'; ?></label>
               </div>
               <div class="radio">
-                <label><?php echo zen_draw_radio_field('email_age', '6_months') . ' ' . RADIO_6_MONTHS . ' (' . date("m/d/Y", mktime(0, 0, 0, date("m") - 6, date("d"), date("Y"))) . ')'; ?></label>
+                <label><?php echo zen_draw_radio_field('email_age', '6_months') . ' ' . RADIO_6_MONTHS . ' (' . date("m/d/Y", mktime(0, 0, 0, date("m") - 6, (int)date("d"), (int)date("Y"))) . ')'; ?></label>
               </div>
               <div class="radio">
-                <label><?php echo zen_draw_radio_field('email_age', '1_year') . ' ' . RADIO_1_YEAR . ' (' . date("m/d/Y", mktime(0, 0, 0, date("m"), date("d"), date("Y") - 1)) . ')'; ?></label>
+                <label><?php echo zen_draw_radio_field('email_age', '1_year') . ' ' . RADIO_1_YEAR . ' (' . date("m/d/Y", mktime(0, 0, 0, (int)date("m"), (int)date("d"), (int)date("Y") - 1)) . ')'; ?></label>
               </div>
             </div>
           </div>
