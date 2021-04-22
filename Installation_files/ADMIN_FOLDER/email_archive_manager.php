@@ -19,6 +19,7 @@ require 'includes/application_top.php';
 $action = $_GET['action'] ?? '';
 $action = !empty($_POST['action']) ? $_POST['action'] : $action;
 switch ($action) {
+
   case 'resend':
     // collect the e-mail data
     $email_sql = $db->Execute("SELECT *
@@ -31,27 +32,37 @@ switch ($action) {
     $messageStack->add_session(sprintf(SUCCESS_EMAIL_RESENT, $email->archive_id, $email->email_to_address), 'success');
     zen_redirect(zen_href_link(FILENAME_EMAIL_HISTORY));
     break;
+	
   case 'delete':
     $db->Execute("DELETE FROM " . TABLE_EMAIL_ARCHIVE . "
                   WHERE archive_id = " . (int)$_GET['archive_id']);
     zen_redirect(zen_href_link(FILENAME_EMAIL_HISTORY));
     break;
+
   case 'trim_confirm':
     $age = !empty($_POST['email_age']) ? $_POST['email_age'] : '';
-    if ($age == '1_months') {
-      $cutoff_date = '1 MONTH';
-    }
-    if ($age == '6_months') {
-      $cutoff_date = '6 MONTH';
-    } elseif ($age == '1_year') {
-      $cutoff_date = '12 MONTH';
-    }
+      switch ($age) {
+          case ('1_months') :
+              $cutoff_date = '1 MONTH';
+              break;
+          case ('6_months') :
+              $cutoff_date = '6 MONTH';
+              break;
+          case ('1_year') :
+              $cutoff_date = '12 MONTH';
+              break;
+          default:
+              $age = '';
+      }
+if ($age !== '') {
     $db->Execute("DELETE FROM " . TABLE_EMAIL_ARCHIVE . "
                   WHERE date_sent <= DATE_SUB(NOW(), INTERVAL " . $cutoff_date . ")");
     $db->Execute("OPTIMIZE TABLE " . TABLE_EMAIL_ARCHIVE);
     $messageStack->add_session(sprintf(SUCCESS_TRIM_ARCHIVE, $cutoff_date), 'success');
+}
     zen_redirect(zen_href_link(FILENAME_EMAIL_HISTORY));
     break;
+
   case 'print_format':
     break;
 }
