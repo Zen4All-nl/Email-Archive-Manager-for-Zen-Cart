@@ -14,11 +14,15 @@
  * @license name Released under the GNU General Public License available at www.zen-cart.com/license/2_0.txt or see "license.txt" in the downloaded zip
  *
  */
+
+define('SUBJECT_SIZE_LIMIT', 0); // restrict the subject line length. 0 means no restriction
+define('MESSAGE_SIZE_LIMIT', 600); // length of the message excerpt shown in the infoBox
+
 require 'includes/application_top.php';
 
-$action = '';
-$action = (isset($_GET['action']) ? $_GET['action'] : '');
-$action = (isset($_POST['action']) && $_POST['action'] != '' ? $_POST['action'] : $action);
+$action = $_GET['action'] ?? '';
+$action = !empty($_POST['action']) ? $_POST['action'] : $action;
+
 switch ($action) {
   case 'resend':
     // collect the e-mail data
@@ -32,27 +36,37 @@ switch ($action) {
     $messageStack->add_session(sprintf(SUCCESS_EMAIL_RESENT, $email->archive_id, $email->email_to_address), 'success');
     zen_redirect(zen_href_link(FILENAME_EMAIL_HISTORY));
     break;
+
   case 'delete':
     $db->Execute("DELETE FROM " . TABLE_EMAIL_ARCHIVE . "
                   WHERE archive_id = " . (int)$_GET['archive_id']);
     zen_redirect(zen_href_link(FILENAME_EMAIL_HISTORY));
     break;
+
   case 'trim_confirm':
-    $age = $_POST['email_age'];
-    if ($age == '1_months') {
-      $cutoff_date = '1 MONTH';
-    }
-    if ($age == '6_months') {
-      $cutoff_date = '6 MONTH';
-    } elseif ($age == '1_year') {
-      $cutoff_date = '12 MONTH';
-    }
+    $age = !empty($_POST['email_age']) ? $_POST['email_age'] : '';
+      switch ($age) {
+          case ('1_months') :
+              $cutoff_date = '1 MONTH';
+              break;
+          case ('6_months') :
+              $cutoff_date = '6 MONTH';
+              break;
+          case ('1_year') :
+              $cutoff_date = '12 MONTH';
+              break;
+          default:
+              $age = '';
+      }
+if ($age !== '') {
     $db->Execute("DELETE FROM " . TABLE_EMAIL_ARCHIVE . "
                   WHERE date_sent <= DATE_SUB(NOW(), INTERVAL " . $cutoff_date . ")");
     $db->Execute("OPTIMIZE TABLE " . TABLE_EMAIL_ARCHIVE);
     $messageStack->add_session(sprintf(SUCCESS_TRIM_ARCHIVE, $cutoff_date), 'success');
+}
     zen_redirect(zen_href_link(FILENAME_EMAIL_HISTORY));
     break;
+
   case 'print_format':
     break;
 }
@@ -63,18 +77,18 @@ $email_module_array[] = array(
   'id' => 1,
   'text' => TEXT_ALL_MODULES
 );
-foreach ($email_module as $iten) {
+foreach ($email_module as $item) {
   $email_module_array[] = array(
     'id' => $item['module'],
     'text' => $item['module']
   );
 }
-$search_sd = ((isset($_POST['start_date']) && zen_not_null($_POST['start_date'])) ? true : false);
-$search_ed = ((isset($_POST['end_date']) && zen_not_null($_POST['end_date'])) ? true : false);
-$search_text = ((isset($_POST['text']) && zen_not_null($_POST['text'])) ? true : false);
-$search_module = ((isset($_POST['module']) && zen_not_null($_POST['module']) && $_POST['module'] != 1) ? true : false);
-$sd_raw = zen_date_raw($_POST['start_date']);
-$ed_raw = zen_date_raw($_POST['end_date']);
+$search_sd = isset($_POST['start_date']) && zen_not_null($_POST['start_date']);
+$search_ed = isset($_POST['end_date']) && zen_not_null($_POST['end_date']);
+$search_text = isset($_POST['text']) && zen_not_null($_POST['text']);
+$search_module = isset($_POST['module']) && zen_not_null($_POST['module']) && $_POST['module'] !== '1';
+$sd_raw = isset($_POST['start_date']) ? zen_date_raw($_POST['start_date']) : '';
+$ed_raw = isset($_POST['end_date']) ? zen_date_raw($_POST['end_date']) : '';
 ?>
 <!doctype html>
 <html <?php echo HTML_PARAMS; ?>>
@@ -91,13 +105,13 @@ $ed_raw = zen_date_raw($_POST['end_date']);
   <body>
     <div id="spiffycalendar" class="text"></div>
     <?php
-    if ($action != 'print_format') {
+    if ($action !== 'print_format') {
       require DIR_WS_INCLUDES . 'header.php';
     }
     ?>
     <script>
-      var StartDate = new ctlSpiffyCalendarBox("StartDate", "search", "start_date", "btnDate1", "<?php echo (($_POST['start_date'] == '') ? '' : $_POST['start_date']); ?>", scBTNMODE_CUSTOMBLUE);
-      var EndDate = new ctlSpiffyCalendarBox("EndDate", "search", "end_date", "btnDate2", "<?php echo (($_POST['end_date'] == '') ? '' : $_POST['end_date']); ?>", scBTNMODE_CUSTOMBLUE);
+      var StartDate = new ctlSpiffyCalendarBox("StartDate", "search", "start_date", "btnDate1", "<?php echo (empty($_POST['start_date']) ? '' : $_POST['start_date']); ?>", scBTNMODE_CUSTOMBLUE);
+      var EndDate = new ctlSpiffyCalendarBox("EndDate", "search", "end_date", "btnDate2", "<?php echo (empty($_POST['end_date']) ? '' : $_POST['end_date']); ?>", scBTNMODE_CUSTOMBLUE);
     </script>
     <div class="container-fluid">
       <?php
@@ -111,7 +125,7 @@ $ed_raw = zen_date_raw($_POST['end_date']);
                                       FROM " . TABLE_EMAIL_ARCHIVE . "
                                       WHERE archive_id = " . (int)$_GET['archive_id']);
 
-          if ($action == 'prev_html') {
+          if ($action === 'prev_html') {
             $html_content = $this_email->fields['email_html'];
             $html_content = str_replace('__', '><', $html_content);
             $html_content = str_replace('_html', '<html', $html_content);
@@ -188,7 +202,7 @@ $ed_raw = zen_date_raw($_POST['end_date']);
               <td class="main"><b><?php echo TEXT_EMAIL_SUBJECT; ?></b></td>
               <td class="main"><?php echo $this_email->fields['email_subject']; ?></td>
             </tr>
-            <?php if ($action == 'resend_confirm') { ?>
+            <?php if ($action === 'resend_confirm') { ?>
               <tr>
                 <td class="main"><b><?php echo POPUP_CONFIRM_RESEND; ?></b></td>
                 <td class="main">
@@ -197,7 +211,7 @@ $ed_raw = zen_date_raw($_POST['end_date']);
                 </td>
               </tr>
             <?php } ?>
-            <?php if ($action == 'delete_confirm') { ?>
+            <?php if ($action === 'delete_confirm') { ?>
               <tr>
                 <td class="main"><b><?php echo POPUP_CONFIRM_DELETE; ?></b></td>
                 <td class="main">
@@ -213,7 +227,7 @@ $ed_raw = zen_date_raw($_POST['end_date']);
           </div>
           <div class="well">
             <?php
-            if ($action == 'prev_html') {
+            if ($action === 'prev_html') {
               echo $html_content;
             } else {
               echo nl2br($this_email->fields['email_text']);
@@ -228,17 +242,16 @@ $ed_raw = zen_date_raw($_POST['end_date']);
           <h1 class="pageHeading"><?php echo TEXT_TRIM_ARCHIVE; ?></h1>
           <?php echo zen_draw_form('trim_timeframe', FILENAME_EMAIL_HISTORY, 'action=trim_confirm', 'post', 'class="form-horizontal"'); ?>
           <div class="form-group">
-
-            <?php echo zen_draw_label(HEADING_TRIM_INSTRUCT, '', 'class="control-label col-sm-3"'); ?>
+              <div class="control-label col-sm-3"><?php echo HEADING_TRIM_INSTRUCT; ?></div>
             <div id="email_age_group" class="col-sm-9 col-md-6">
               <div class="radio">
-                <label><?php echo zen_draw_radio_field('email_age', '1_months', true) . ' ' . RADIO_1_MONTH . ' (' . date("m/d/Y", mktime(0, 0, 0, date("m") - 1, date("d"), date("Y"))) . ')'; ?></label>
+                <label><?php echo zen_draw_radio_field('email_age', '1_months', true) . ' ' . RADIO_1_MONTH . ' (' . date("m/d/Y", mktime(0, 0, 0, date("m") - 1, (int)date("d"), (int)date("Y"))) . ')'; ?></label>
               </div>
               <div class="radio">
-                <label><?php echo zen_draw_radio_field('email_age', '6_months') . ' ' . RADIO_6_MONTHS . ' (' . date("m/d/Y", mktime(0, 0, 0, date("m") - 6, date("d"), date("Y"))) . ')'; ?></label>
+                <label><?php echo zen_draw_radio_field('email_age', '6_months') . ' ' . RADIO_6_MONTHS . ' (' . date("m/d/Y", mktime(0, 0, 0, date("m") - 6, (int)date("d"), (int)date("Y"))) . ')'; ?></label>
               </div>
               <div class="radio">
-                <label><?php echo zen_draw_radio_field('email_age', '1_year') . ' ' . RADIO_1_YEAR . ' (' . date("m/d/Y", mktime(0, 0, 0, date("m"), date("d"), date("Y") - 1)) . ')'; ?></label>
+                <label><?php echo zen_draw_radio_field('email_age', '1_year') . ' ' . RADIO_1_YEAR . ' (' . date("m/d/Y", mktime(0, 0, 0, (int)date("m"), (int)date("d"), (int)date("Y") - 1)) . ')'; ?></label>
               </div>
             </div>
           </div>
@@ -258,14 +271,8 @@ $ed_raw = zen_date_raw($_POST['end_date']);
         case'print_format':
         default:
           ?>
-          <?php if ($action == 'print_format') { ?>
-            <h1>
-              <a href="<?php echo zen_href_link(FILENAME_EMAIL_HISTORY); ?>"><?php echo HEADING_TITLE; ?></a>
-              <td class="pageHeading" align="right"><?php echo date('l M d, Y', time()); ?></td>
-            </h1>
-            <div class="col-sm-12">
-              <p><?php echo $this_report; ?></p>
-            </div>
+          <?php if ($action === 'print_format') { ?>
+            <h1><a class="pageHeading" href="<?php echo zen_href_link(FILENAME_EMAIL_HISTORY); ?>"><?php echo HEADING_TITLE; ?></a>: <?php echo date('l M d, Y'); ?></h1>
           <?php } else { ?>
             <h1><?php echo HEADING_TITLE; ?></h1>
             <div class="col-sm-12">
@@ -299,11 +306,11 @@ $ed_raw = zen_date_raw($_POST['end_date']);
               <div class="form-group">
                 <?php echo zen_draw_label(HEADING_SEARCH_TEXT, 'text', 'class="control-label col-sm-3"'); ?>
                 <div class="col-sm-9">
-                  <?php echo zen_draw_input_field('text', '', 'class="form-control"'); ?>
+                  <?php echo zen_draw_input_field('text', '', 'class="form-control" id="text"'); ?>
                 </div>
               </div>
               <?php
-              if (isset($_POST['text']) && $_POST['text'] != '') {
+              if (!empty($_POST['text'])) {
                 $keywords = zen_db_input(zen_db_prepare_input($_POST['text']));
                 ?>
                 <div class="form-group">
@@ -313,7 +320,7 @@ $ed_raw = zen_date_raw($_POST['end_date']);
               <div class="form-group">
                 <?php echo zen_draw_label(HEADING_MODULE_SELECT, 'module', 'class="control-label col-sm-3"'); ?>
                 <div class="col-sm-9">
-                  <?php echo zen_draw_pull_down_menu('module', $email_module_array, $_POST['module'], 'class="form-control"');
+                  <?php echo zen_draw_pull_down_menu('module', $email_module_array, (empty($_POST['module']) ? '' : $_POST['module']), 'class="form-control" id="module"');
                   ?>
                 </div>
               </div>
@@ -380,7 +387,7 @@ $ed_raw = zen_date_raw($_POST['end_date']);
                     if ($search_sd || $search_ed || $search_text) {
                       $archive_search .= "AND ";
                     }
-                    $archive_search .= "module = '" . $_POST['module'] . "'" . PHP_EOL;
+                    $archive_search .= "module = '" . zen_db_prepare_input($_POST['module']) . "'" . PHP_EOL;
                   }
 
                   $archive_search .= "ORDER BY archive_id DESC";
@@ -391,14 +398,14 @@ $ed_raw = zen_date_raw($_POST['end_date']);
 
                   foreach ($email_archive as $item) {
 
-                    if ((!isset($_GET['archive_id']) || (isset($_GET['archive_id']) && ($_GET['archive_id'] == $item['archive_id']))) && !isset($archive)) {
+                    if ((!isset($_GET['archive_id']) || (isset($_GET['archive_id']) && ($_GET['archive_id'] === $item['archive_id']))) && !isset($archive)) {
                       $archive = new objectInfo($item);
                     }
 
-                    if ($action == 'print_format') {
+                    if ($action === 'print_format') {
                       ?>
                       <tr class="dataTableRow">
-                      <?php } elseif (isset($archive) && is_object($archive) && ($item['archive_id'] == $archive->archive_id)) { ?>
+                      <?php } elseif (isset($archive) && is_object($archive) && ($item['archive_id'] === $archive->archive_id)) { ?>
                       <tr id="defaultSelected" class="dataTableRowSelected" onclick="document.location.href = '<?php echo zen_href_link(FILENAME_EMAIL_HISTORY, zen_get_all_get_params(array('archive_id', 'action')) . 'archive_id=' . $archive->archive_id . '&action=view'); ?>'">
                       <?php } else { ?>
                       <tr class="dataTableRow" onclick="document.location.href = '<?php echo zen_href_link(FILENAME_EMAIL_HISTORY, zen_get_all_get_params(array('archive_id')) . 'archive_id=' . $item['archive_id']); ?>'">
@@ -408,18 +415,19 @@ $ed_raw = zen_date_raw($_POST['end_date']);
                       <td class="dataTableContent"><?php echo $item['email_to_address']; ?></td>
                       <td class="dataTableContent">
                         <?php
-                        echo substr($item['email_subject'], 0, SUBJECT_SIZE_LIMIT);
-                        if (strlen($item['email_subject']) > SUBJECT_SIZE_LIMIT) {
-                          echo MESSAGE_LIMIT_BREAK;
+                        if (SUBJECT_SIZE_LIMIT === 0) {
+                            echo $item['email_subject'];
+                        } elseif (strlen($item['email_subject']) > SUBJECT_SIZE_LIMIT) {
+                            echo substr($item['email_subject'], 0, SUBJECT_SIZE_LIMIT+3) . '&hellip;';
                         }
                         ?>
                       </td>
                       <td class="dataTableContent text-right">
                         <?php
-                        if (isset($archive) && is_object($archive) && ($item['archive_id'] == $archive->archive_id) && $action != 'print_format') {
+                        if (isset($archive) && is_object($archive) && ($item['archive_id'] === $archive->archive_id) && $action !== 'print_format') {
                           echo zen_image(DIR_WS_IMAGES . 'icon_arrow_right.gif', '');
                         } else {
-                          if ($item['email_html'] != '') {
+                          if ($item['email_html'] !== '') {
                             echo TABLE_FORMAT_HTML;
                           } else {
                             echo TABLE_FORMAT_TEXT;
@@ -431,7 +439,7 @@ $ed_raw = zen_date_raw($_POST['end_date']);
                   <?php } ?>
                 </tbody>
               </table>
-              <?php if ($action != 'print_format') { ?>
+              <?php if ($action !== 'print_format') { ?>
               </div>
               <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 configurationColumnRight">
                 <?php
@@ -446,7 +454,7 @@ $ed_raw = zen_date_raw($_POST['end_date']);
                                             FROM " . TABLE_CUSTOMERS . "
                                             WHERE customers_email_address
                                             LIKE '" . $archive->email_to_address . "'");
-                  if ($customer->RecordCount() == 1) {
+                  if ($customer->RecordCount() === 1) {
                     $mail_button = '<a href="' . zen_href_link(FILENAME_MAIL, 'origin=' . FILENAME_EMAIL_HISTORY . '&customer=' . $archive->email_to_address . '&cID=' . (int)$customer->fields['customers_id']) . '" class="btn btn-primary" role="button">' . IMAGE_EMAIL . '</a>';
                   } else {
                     $mail_button = '<a href="mailto:' . $archive->email_to_address . '" class="btn btn-primary" role="button">' . IMAGE_EMAIL . '</a>';
@@ -457,7 +465,7 @@ $ed_raw = zen_date_raw($_POST['end_date']);
                   // Delete button
                   $contents[] = array('align' => 'text-center', 'text' => '<a href="' . zen_href_link(FILENAME_EMAIL_HISTORY, 'archive_id=' . $archive->archive_id . '&action=delete_confirm' . (isset($_GET['page']) ? '&page=' . (int)$_GET['page'] : '')) . '" class="btn btn-warning" role="button">' . IMAGE_ICON_DELETE . '</a>');
                   $contents[] = array('align' => 'text-center', 'text' => '<a href="' . zen_href_link(FILENAME_EMAIL_HISTORY, 'archive_id=' . $archive->archive_id . '&action=prev_text' . (isset($_GET['page']) ? '&page=' . (int)$_GET['page'] : '')) . '" target="_blank" class="btn btn-primary" role="button">' . IMAGE_ICON_TEXT . '</a>');
-                  if ($archive->email_html != '') {
+                  if ($archive->email_html !== '') {
                     $contents[] = array('align' => 'text-center', 'text' => '<a href="' . zen_href_link(FILENAME_EMAIL_HISTORY, 'archive_id=' . $archive->archive_id . '&action=prev_html' . (isset($_GET['page']) ? '&page=' . (int)$_GET['page'] : '')) . '" target="_blank" class="btn btn-primary" role="button">' . IMAGE_ICON_HTML . '</a>');
                   }
                   $contents[] = array('text' => zen_draw_separator());
@@ -467,14 +475,14 @@ $ed_raw = zen_date_raw($_POST['end_date']);
                   $contents[] = array('text' => '<b>' . TEXT_EMAIL_DATE_SENT . '</b>' . $archive->date_sent);
                   $contents[] = array('text' => '<b>' . TEXT_EMAIL_SUBJECT . '</b>' . $archive->email_subject);
                   $contents[] = array('text' => '<b>' . TEXT_EMAIL_EXCERPT . '</b>');
-                  $contents[] = array('text' => nl2br(substr($archive->email_text, 0, MESSAGE_SIZE_LIMIT)) . MESSAGE_LIMIT_BREAK);
+                  $contents[] = array('text' => nl2br(substr($archive->email_text, 0, MESSAGE_SIZE_LIMIT)) . '&hellip;');
                 }
 
                 // display sidebox
                 if (zen_not_null($heading) && zen_not_null($contents)) {
                   ?>
                   <?php
-                  $box = new box;
+                  $box = new box();
                   echo $box->infoBox($heading, $contents);
                   ?>
                 <?php } ?>
@@ -495,7 +503,7 @@ $ed_raw = zen_date_raw($_POST['end_date']);
       ?>
     </div>
     <?php
-    if ($action != 'print_format') {
+    if ($action !== 'print_format') {
       require DIR_WS_INCLUDES . 'footer.php';
     }
     ?>
