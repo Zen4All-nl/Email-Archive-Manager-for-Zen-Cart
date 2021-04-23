@@ -4,7 +4,9 @@
  * EMAIL ARCHIVE SEARCH
  * @version Version 2.0
  *
- * @author By Frank Koehl  (PM: BlindSide)
+ * @author Erik Kerkhoven (Zen4All) <info@zen4all.nl>
+ * @author Steve (TorVista)
+ * @author Frank Koehl (PM: BlindSide)
  * Support by DrByte
  * Delete button by That Software Guy
  *
@@ -14,14 +16,13 @@
  * @license name Released under the GNU General Public License available at www.zen-cart.com/license/2_0.txt or see "license.txt" in the downloaded zip
  *
  */
-
 define('SUBJECT_SIZE_LIMIT', 0); // restrict the subject line length. 0 means no restriction
 define('MESSAGE_SIZE_LIMIT', 600); // length of the message excerpt shown in the infoBox
 
 require 'includes/application_top.php';
 
 $action = $_GET['action'] ?? '';
-$action = !empty($_POST['action']) ? $_POST['action'] : $action;
+$action = (!empty($_POST['action']) ? $_POST['action'] : $action);
 
 switch ($action) {
   case 'resend':
@@ -45,25 +46,25 @@ switch ($action) {
 
   case 'trim_confirm':
     $age = !empty($_POST['email_age']) ? $_POST['email_age'] : '';
-      switch ($age) {
-          case ('1_months') :
-              $cutoff_date = '1 MONTH';
-              break;
-          case ('6_months') :
-              $cutoff_date = '6 MONTH';
-              break;
-          case ('1_year') :
-              $cutoff_date = '12 MONTH';
-              break;
-          default:
-              $age = '';
-      }
-if ($age !== '') {
-    $db->Execute("DELETE FROM " . TABLE_EMAIL_ARCHIVE . "
-                  WHERE date_sent <= DATE_SUB(NOW(), INTERVAL " . $cutoff_date . ")");
-    $db->Execute("OPTIMIZE TABLE " . TABLE_EMAIL_ARCHIVE);
-    $messageStack->add_session(sprintf(SUCCESS_TRIM_ARCHIVE, $cutoff_date), 'success');
-}
+    switch ($age) {
+      case ('1_months') :
+        $cutoff_date = '1 MONTH';
+        break;
+      case ('6_months') :
+        $cutoff_date = '6 MONTH';
+        break;
+      case ('1_year') :
+        $cutoff_date = '12 MONTH';
+        break;
+      default:
+        $age = '';
+    }
+    if ($age !== '') {
+      $db->Execute("DELETE FROM " . TABLE_EMAIL_ARCHIVE . "
+                    WHERE date_sent <= DATE_SUB(NOW(), INTERVAL " . $cutoff_date . ")");
+      $db->Execute("OPTIMIZE TABLE " . TABLE_EMAIL_ARCHIVE);
+      $messageStack->add_session(sprintf(SUCCESS_TRIM_ARCHIVE, $cutoff_date), 'success');
+    }
     zen_redirect(zen_href_link(FILENAME_EMAIL_HISTORY));
     break;
 
@@ -73,15 +74,15 @@ if ($age !== '') {
 $email_module = $db->Execute("SELECT DISTINCT module
                               FROM " . TABLE_EMAIL_ARCHIVE . "
                               ORDER BY module ASC");
-$email_module_array[] = array(
+$email_module_array[] = [
   'id' => 1,
   'text' => TEXT_ALL_MODULES
-);
+];
 foreach ($email_module as $item) {
-  $email_module_array[] = array(
+  $email_module_array[] = [
     'id' => $item['module'],
     'text' => $item['module']
-  );
+  ];
 }
 $search_sd = isset($_POST['start_date']) && zen_not_null($_POST['start_date']);
 $search_ed = isset($_POST['end_date']) && zen_not_null($_POST['end_date']);
@@ -93,30 +94,13 @@ $ed_raw = isset($_POST['end_date']) ? zen_date_raw($_POST['end_date']) : '';
 <!doctype html>
 <html <?php echo HTML_PARAMS; ?>>
   <head>
-    <meta charset="<?php echo CHARSET; ?>">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?php echo TITLE; ?></title>
-    <link rel="stylesheet" type="text/css" href="includes/stylesheet.css">
-    <link rel="stylesheet" href="includes/javascript/spiffyCal/spiffyCal_v2_1.css">
-    <script src="includes/javascript/spiffyCal/spiffyCal_v2_1.js"></script>
-    <script src="includes/general.js"></script>
+    <?php require DIR_WS_INCLUDES . 'admin_html_head.php'; ?>
   </head>
   <body>
-    <div id="spiffycalendar" class="text"></div>
-    <?php
-    if ($action !== 'print_format') {
-      require DIR_WS_INCLUDES . 'header.php';
-    }
-    ?>
-    <script>
-      var StartDate = new ctlSpiffyCalendarBox("StartDate", "search", "start_date", "btnDate1", "<?php echo (empty($_POST['start_date']) ? '' : $_POST['start_date']); ?>", scBTNMODE_CUSTOMBLUE);
-      var EndDate = new ctlSpiffyCalendarBox("EndDate", "search", "end_date", "btnDate2", "<?php echo (empty($_POST['end_date']) ? '' : $_POST['end_date']); ?>", scBTNMODE_CUSTOMBLUE);
-    </script>
+    <?php ($action !== 'print_format' ? require DIR_WS_INCLUDES . 'header.php' : ''); ?>
     <div class="container-fluid">
       <?php
       switch ($action) {
-
         case 'delete_confirm':
         case 'resend_confirm':
         case 'prev_text':
@@ -142,11 +126,11 @@ $ed_raw = isset($_POST['end_date']) ? zen_date_raw($_POST['end_date']) : '';
             $html_content = str_replace('_table_', '<table>', $html_content);
             $html_content = str_replace('_table ', '<table ', $html_content);
             $html_content = str_replace('_/table', '</table', $html_content);
-            $html_content = str_replace(array('_tr_', '_tr>'), '<tr>', $html_content);
-            $html_content = str_replace(array('_/tr_', '_/tr>'), '</tr>', $html_content);
-            $html_content = str_replace(array('_td_', '<td_'), '<td>', $html_content);
+            $html_content = str_replace(['_tr_', '_tr>'], '<tr>', $html_content);
+            $html_content = str_replace(['_/tr_', '_/tr>'], '</tr>', $html_content);
+            $html_content = str_replace(['_td_', '<td_'], '<td>', $html_content);
             $html_content = str_replace('_td ', '<td ', $html_content);
-            $html_content = str_replace(array('_/td_', '_/td>', '</td_'), '</td>', $html_content);
+            $html_content = str_replace(['_/td_', '_/td>', '</td_'], '</td>', $html_content);
             $html_content = str_replace('"_', '">', $html_content);
             $html_content = str_replace('_ ', '> ', $html_content);
             $html_content = str_replace('_li>', '<li>', $html_content);
@@ -159,7 +143,7 @@ $ed_raw = isset($_POST['end_date']) ? zen_date_raw($_POST['end_date']) : '';
             $html_content = str_replace('_/strong', '</strong', $html_content);
             $html_content = str_replace('_!', '<!', $html_content);
             $html_content = str_replace('--_', '-->', $html_content);
-            $html_content = str_replace(array('_br_', '_br /_', '_br />'), '<br />', $html_content);
+            $html_content = str_replace(['_br_', '_br /_', '_br />'], '<br />', $html_content);
             $html_content = str_replace('_style', '<style', $html_content);
             $html_content = str_replace('_/style', '</style', $html_content);
             $html_content = str_replace('style_', 'style>', $html_content);
@@ -167,13 +151,12 @@ $ed_raw = isset($_POST['end_date']) ? zen_date_raw($_POST['end_date']) : '';
             $html_content = str_replace('_/em', '</em', $html_content);
             $html_content = str_replace('_img ', '<img ', $html_content);
             $html_content = str_replace('_a href', '<a href', $html_content);
-            $html_content = str_replace(array('_/a_', '_/a>'), '</a>', $html_content);
+            $html_content = str_replace(['_/a_', '_/a>'], '</a>', $html_content);
             $html_content = str_replace('/_', '/>', $html_content);
             $html_content = str_replace('_', '>', $html_content);
-
-            $html_content = str_replace(array('<html>', '</html>'), '', $html_content);
-            $html_content = str_replace(array('<head>', '</head>'), '', $html_content);
-            $html_content = str_replace(array('<body>', '</body>'), '', $html_content);
+            $html_content = str_replace(['<html>', '</html>'], '', $html_content);
+            $html_content = str_replace(['<head>', '</head>'], '', $html_content);
+            $html_content = str_replace(['<body>', '</body>'], '', $html_content);
             $html_content = str_replace('&quot;_', '">', $html_content);
             $html_content = str_replace('_nobr', '<nobr', $html_content);
             $html_content = str_replace(';nbsp;', '&nbsp;', $html_content);
@@ -215,7 +198,7 @@ $ed_raw = isset($_POST['end_date']) ? zen_date_raw($_POST['end_date']) : '';
               <tr>
                 <td class="main"><b><?php echo POPUP_CONFIRM_DELETE; ?></b></td>
                 <td class="main">
-                  <a href="<?php echo zen_href_link(FILENAME_EMAIL_HISTORY, zen_get_all_get_params(array('action')) . 'action=delete'); ?>" class="btn btn-warning" role="button"><?php echo BUTTON_DELETE_EMAIL; ?></a>
+                  <a href="<?php echo zen_href_link(FILENAME_EMAIL_HISTORY, zen_get_all_get_params(['action']) . 'action=delete'); ?>" class="btn btn-warning" role="button"><?php echo BUTTON_DELETE_EMAIL; ?></a>
                   <a href="<?php echo zen_href_link(FILENAME_EMAIL_HISTORY, 'archive_id=' . $this_email->fields['archive_id'] . (isset($_GET['page']) ? '&page=' . (int)$_GET['page'] : '')); ?>" class="btn btn-default" role="button"><?php echo IMAGE_BACK ?></a>
                 </td>
               </tr>
@@ -236,13 +219,12 @@ $ed_raw = isset($_POST['end_date']) ? zen_date_raw($_POST['end_date']) : '';
           </div>
           <?php
           break;
-
         case 'trim':
           ?>
           <h1 class="pageHeading"><?php echo TEXT_TRIM_ARCHIVE; ?></h1>
           <?php echo zen_draw_form('trim_timeframe', FILENAME_EMAIL_HISTORY, 'action=trim_confirm', 'post', 'class="form-horizontal"'); ?>
           <div class="form-group">
-              <div class="control-label col-sm-3"><?php echo HEADING_TRIM_INSTRUCT; ?></div>
+            <div class="control-label col-sm-3"><?php echo HEADING_TRIM_INSTRUCT; ?></div>
             <div id="email_age_group" class="col-sm-9 col-md-6">
               <div class="radio">
                 <label><?php echo zen_draw_radio_field('email_age', '1_months', true) . ' ' . RADIO_1_MONTH . ' (' . date("m/d/Y", mktime(0, 0, 0, date("m") - 1, (int)date("d"), (int)date("Y"))) . ')'; ?></label>
@@ -256,9 +238,7 @@ $ed_raw = isset($_POST['end_date']) ? zen_date_raw($_POST['end_date']) : '';
             </div>
           </div>
           <div class="col-sm-12">
-            <p class="bg-danger">
-              <?php echo TRIM_CONFIRM_WARNING; ?>
-            </p>
+            <p class="bg-danger"><?php echo TRIM_CONFIRM_WARNING; ?></p>
           </div>
           <div class="form-group">
             <div class="col-lg-offset-3 col-sm-9 col-md-6">
@@ -272,9 +252,9 @@ $ed_raw = isset($_POST['end_date']) ? zen_date_raw($_POST['end_date']) : '';
         default:
           ?>
           <?php if ($action === 'print_format') { ?>
-            <h1><a class="pageHeading" href="<?php echo zen_href_link(FILENAME_EMAIL_HISTORY); ?>"><?php echo HEADING_TITLE; ?></a>: <?php echo date('l M d, Y'); ?></h1>
+            <h1 class="pageHeading"><a href="<?php echo zen_href_link(FILENAME_EMAIL_HISTORY); ?>"><?php echo HEADING_TITLE; ?></a>: <?php echo date('l M d, Y'); ?></h1>
           <?php } else { ?>
-            <h1><?php echo HEADING_TITLE; ?></h1>
+            <h1 class="pageHeading"><?php echo HEADING_TITLE; ?></h1>
             <div class="col-sm-12">
               <p><?php echo HEADING_SEARCH_INSTRUCT; ?></p>
             </div>
@@ -286,19 +266,25 @@ $ed_raw = isset($_POST['end_date']) ? zen_date_raw($_POST['end_date']) : '';
               <div class="form-group">
                 <?php echo zen_draw_label(HEADING_START_DATE, 'start_date', 'class="control-label col-sm-3"'); ?>
                 <div class="col-sm-9">
-                  <script>
-                    StartDate.writeControl();
-                    StartDate.dateFormat = "<?php echo DATE_FORMAT_SPIFFYCAL; ?>";
-                  </script>
+                  <div class="date input-group" id="datepicker">
+                    <span class="input-group-addon datepicker_icon">
+                      <i class="fa fa-calendar fa-lg">&nbsp;</i>
+                    </span>
+                    <?php echo zen_draw_input_field('start_date', '', 'class="form-control" id="start_date" autocomplete="off"'); ?>
+                  </div>
+                  <span class="help-block errorText">(<?php echo zen_datepicker_format_full(); ?>)</span>
                 </div>
               </div>
               <div class="form-group">
                 <?php echo zen_draw_label(HEADING_END_DATE, 'end_date', 'class="control-label col-sm-3"'); ?>
                 <div class="col-sm-9">
-                  <script>
-                    EndDate.writeControl();
-                    EndDate.dateFormat = "<?php echo DATE_FORMAT_SPIFFYCAL; ?>";
-                  </script>
+                  <div class="date input-group" id="datepicker">
+                    <span class="input-group-addon datepicker_icon">
+                      <i class="fa fa-calendar fa-lg">&nbsp;</i>
+                    </span>
+                    <?php echo zen_draw_input_field('end_date', '', 'class="form-control" id="end_date" autocomplete="off"'); ?>
+                  </div>
+                  <span class="help-block errorText">(<?php echo zen_datepicker_format_full(); ?>)</span>
                 </div>
               </div>
             </div>
@@ -397,7 +383,6 @@ $ed_raw = isset($_POST['end_date']) ? zen_date_raw($_POST['end_date']) : '';
                   $email_archive = $db->Execute($archive_search);
 
                   foreach ($email_archive as $item) {
-
                     if ((!isset($_GET['archive_id']) || (isset($_GET['archive_id']) && ($_GET['archive_id'] === $item['archive_id']))) && !isset($archive)) {
                       $archive = new objectInfo($item);
                     }
@@ -406,9 +391,9 @@ $ed_raw = isset($_POST['end_date']) ? zen_date_raw($_POST['end_date']) : '';
                       ?>
                       <tr class="dataTableRow">
                       <?php } elseif (isset($archive) && is_object($archive) && ($item['archive_id'] === $archive->archive_id)) { ?>
-                      <tr id="defaultSelected" class="dataTableRowSelected" onclick="document.location.href = '<?php echo zen_href_link(FILENAME_EMAIL_HISTORY, zen_get_all_get_params(array('archive_id', 'action')) . 'archive_id=' . $archive->archive_id . '&action=view'); ?>'">
+                      <tr id="defaultSelected" class="dataTableRowSelected" onclick="document.location.href = '<?php echo zen_href_link(FILENAME_EMAIL_HISTORY, zen_get_all_get_params(['archive_id', 'action']) . 'archive_id=' . $archive->archive_id . '&action=view'); ?>'">
                       <?php } else { ?>
-                      <tr class="dataTableRow" onclick="document.location.href = '<?php echo zen_href_link(FILENAME_EMAIL_HISTORY, zen_get_all_get_params(array('archive_id')) . 'archive_id=' . $item['archive_id']); ?>'">
+                      <tr class="dataTableRow" onclick="document.location.href = '<?php echo zen_href_link(FILENAME_EMAIL_HISTORY, zen_get_all_get_params(['archive_id']) . 'archive_id=' . $item['archive_id']); ?>'">
                       <?php } ?>
                       <td class="dataTableContent"><?php echo zen_datetime_short($item['date_sent']); ?></td>
                       <td class="dataTableContent"><?php echo $item['email_to_name']; ?></td>
@@ -416,9 +401,9 @@ $ed_raw = isset($_POST['end_date']) ? zen_date_raw($_POST['end_date']) : '';
                       <td class="dataTableContent">
                         <?php
                         if (SUBJECT_SIZE_LIMIT === 0) {
-                            echo $item['email_subject'];
+                          echo $item['email_subject'];
                         } elseif (strlen($item['email_subject']) > SUBJECT_SIZE_LIMIT) {
-                            echo substr($item['email_subject'], 0, SUBJECT_SIZE_LIMIT+3) . '&hellip;';
+                          echo substr($item['email_subject'], 0, SUBJECT_SIZE_LIMIT + 3) . '&hellip;';
                         }
                         ?>
                       </td>
@@ -444,8 +429,8 @@ $ed_raw = isset($_POST['end_date']) ? zen_date_raw($_POST['end_date']) : '';
               <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 configurationColumnRight">
                 <?php
                 // create sidebox
-                $heading = array();
-                $contents = array();
+                $heading = [];
+                $contents = [];
 
                 if (isset($archive) && is_object($archive)) {
 
@@ -460,39 +445,66 @@ $ed_raw = isset($_POST['end_date']) ? zen_date_raw($_POST['end_date']) : '';
                     $mail_button = '<a href="mailto:' . $archive->email_to_address . '" class="btn btn-primary" role="button">' . IMAGE_EMAIL . '</a>';
                   }
 
-                  $heading[] = array('text' => '<h4>' . TEXT_ARCHIVE_ID . $archive->archive_id . '&nbsp; - &nbsp;' . zen_datetime_short($archive->date_sent) . '</h4>');
-                  $contents[] = array('align' => 'text-center', 'text' => $mail_button . '&nbsp;<a href="' . zen_href_link(FILENAME_EMAIL_HISTORY, 'archive_id=' . $archive->archive_id . '&action=resend_confirm' . (isset($_GET['page']) ? '&page=' . (int)$_GET['page'] : '')) . '" class="btn btn-primary" role="button">' . IMAGE_ICON_RESEND . '</a>');
+                  $heading[] = [
+                    'text' => '<h4>' . TEXT_ARCHIVE_ID . $archive->archive_id . '&nbsp; - &nbsp;' . zen_datetime_short($archive->date_sent) . '</h4>'
+                  ];
+                  $contents[] = [
+                    'align' => 'text-center',
+                    'text' => $mail_button . '&nbsp;<a href="' . zen_href_link(FILENAME_EMAIL_HISTORY, 'archive_id=' . $archive->archive_id . '&action=resend_confirm' . (isset($_GET['page']) ? '&page=' . (int)$_GET['page'] : '')) . '" class="btn btn-primary" role="button">' . IMAGE_ICON_RESEND . '</a>'
+                  ];
                   // Delete button
-                  $contents[] = array('align' => 'text-center', 'text' => '<a href="' . zen_href_link(FILENAME_EMAIL_HISTORY, 'archive_id=' . $archive->archive_id . '&action=delete_confirm' . (isset($_GET['page']) ? '&page=' . (int)$_GET['page'] : '')) . '" class="btn btn-warning" role="button">' . IMAGE_ICON_DELETE . '</a>');
-                  $contents[] = array('align' => 'text-center', 'text' => '<a href="' . zen_href_link(FILENAME_EMAIL_HISTORY, 'archive_id=' . $archive->archive_id . '&action=prev_text' . (isset($_GET['page']) ? '&page=' . (int)$_GET['page'] : '')) . '" target="_blank" class="btn btn-primary" role="button">' . IMAGE_ICON_TEXT . '</a>');
+                  $contents[] = [
+                    'align' => 'text-center',
+                    'text' => '<a href="' . zen_href_link(FILENAME_EMAIL_HISTORY, 'archive_id=' . $archive->archive_id . '&action=delete_confirm' . (isset($_GET['page']) ? '&page=' . (int)$_GET['page'] : '')) . '" class="btn btn-warning" role="button">' . IMAGE_ICON_DELETE . '</a>'];
+                  $contents[] = [
+                    'align' => 'text-center',
+                    'text' => '<a href="' . zen_href_link(FILENAME_EMAIL_HISTORY, 'archive_id=' . $archive->archive_id . '&action=prev_text' . (isset($_GET['page']) ? '&page=' . (int)$_GET['page'] : '')) . '" target="_blank" class="btn btn-primary" role="button">' . IMAGE_ICON_TEXT . '</a>'
+                  ];
                   if ($archive->email_html !== '') {
-                    $contents[] = array('align' => 'text-center', 'text' => '<a href="' . zen_href_link(FILENAME_EMAIL_HISTORY, 'archive_id=' . $archive->archive_id . '&action=prev_html' . (isset($_GET['page']) ? '&page=' . (int)$_GET['page'] : '')) . '" target="_blank" class="btn btn-primary" role="button">' . IMAGE_ICON_HTML . '</a>');
+                    $contents[] = [
+                      'align' => 'text-center',
+                      'text' => '<a href="' . zen_href_link(FILENAME_EMAIL_HISTORY, 'archive_id=' . $archive->archive_id . '&action=prev_html' . (isset($_GET['page']) ? '&page=' . (int)$_GET['page'] : '')) . '" target="_blank" class="btn btn-primary" role="button">' . IMAGE_ICON_HTML . '</a>'
+                    ];
                   }
-                  $contents[] = array('text' => zen_draw_separator());
-                  $contents[] = array('text' => '<b>' . TEXT_EMAIL_MODULE . '</b>' . $archive->module);
-                  $contents[] = array('text' => '<b>' . TEXT_EMAIL_FROM . '</b>' . $archive->email_from_name . ' [' . $archive->email_from_address . ']');
-                  $contents[] = array('text' => '<b>' . TEXT_EMAIL_TO . '</b>' . $archive->email_to_name . ' [' . $archive->email_to_address . ']');
-                  $contents[] = array('text' => '<b>' . TEXT_EMAIL_DATE_SENT . '</b>' . $archive->date_sent);
-                  $contents[] = array('text' => '<b>' . TEXT_EMAIL_SUBJECT . '</b>' . $archive->email_subject);
-                  $contents[] = array('text' => '<b>' . TEXT_EMAIL_EXCERPT . '</b>');
-                  $contents[] = array('text' => nl2br(substr($archive->email_text, 0, MESSAGE_SIZE_LIMIT)) . '&hellip;');
+                  $contents[] = [
+                    'text' => zen_draw_separator()
+                  ];
+                  $contents[] = [
+                    'text' => '<b>' . TEXT_EMAIL_MODULE . '</b>' . $archive->module
+                  ];
+                  $contents[] = [
+                    'text' => '<b>' . TEXT_EMAIL_FROM . '</b>' . $archive->email_from_name . ' [' . $archive->email_from_address . ']'
+                  ];
+                  $contents[] = [
+                    'text' => '<b>' . TEXT_EMAIL_TO . '</b>' . $archive->email_to_name . ' [' . $archive->email_to_address . ']'
+                  ];
+                  $contents[] = [
+                    'text' => '<b>' . TEXT_EMAIL_DATE_SENT . '</b>' . $archive->date_sent
+                  ];
+                  $contents[] = [
+                    'text' => '<b>' . TEXT_EMAIL_SUBJECT . '</b>' . $archive->email_subject
+                  ];
+                  $contents[] = [
+                    'text' => '<b>' . TEXT_EMAIL_EXCERPT . '</b>'
+                  ];
+                  $contents[] = [
+                    'text' => nl2br(substr($archive->email_text, 0, MESSAGE_SIZE_LIMIT)) . '&hellip;'
+                  ];
                 }
 
                 // display sidebox
                 if (zen_not_null($heading) && zen_not_null($contents)) {
-                  ?>
-                  <?php
                   $box = new box();
                   echo $box->infoBox($heading, $contents);
-                  ?>
-                <?php } ?>
+                }
+                ?>
               </div>
             </div>
             <div class="row">
               <table class="table">
                 <tr>
                   <td><?php echo $email_split->display_count($email_query_numrows, MAX_DISPLAY_SEARCH_RESULTS_ORDERS, (int)$_GET['page'], TEXT_DISPLAY_NUMBER_OF_EMAILS); ?></td>
-                  <td class="text-right"><?php echo $email_split->display_links($email_query_numrows, MAX_DISPLAY_SEARCH_RESULTS_ORDERS, MAX_DISPLAY_PAGE_LINKS, (int)$_GET['page'], zen_get_all_get_params(array('archive_id', 'page'))); ?></td>
+                  <td class="text-right"><?php echo $email_split->display_links($email_query_numrows, MAX_DISPLAY_SEARCH_RESULTS_ORDERS, MAX_DISPLAY_PAGE_LINKS, (int)$_GET['page'], zen_get_all_get_params(['archive_id', 'page'])); ?></td>
                 </tr>
               </table>
             </div>
@@ -502,8 +514,15 @@ $ed_raw = isset($_POST['end_date']) ? zen_date_raw($_POST['end_date']) : '';
       }
       ?>
     </div>
-    <?php
-    if ($action !== 'print_format') {
+    <?php if ($action !== 'print_format') { ?>
+      <!-- script for datepicker -->
+      <script>
+        $(function () {
+          $('input[name="start_date"]').datepicker();
+          $('input[name="end_date"]').datepicker();
+        })
+      </script>
+      <?php
       require DIR_WS_INCLUDES . 'footer.php';
     }
     ?>

@@ -1,21 +1,18 @@
 <?php
-/*
-//////////////////////////////////////////////////////////
-//  EMAIL ARCHIVE SEARCH                                //
-//  Version 1.5                                         //
-//                                                      //
-//  By Frank Koehl  (PM: BlindSide)                     //
-//  Support by DrByte                                   //
-//                                                      //
-//  Powered by Zen-Cart (www.zen-cart.com)              //
-//  Portions Copyright (c) 2005 The Zen-Cart Team       //
-//                                                      //
-//  Released under the GNU General Public License       //
-//  available at www.zen-cart.com/license/2_0.txt       //
-//  or see "license.txt" in the downloaded zip          //
-//////////////////////////////////////////////////////////
-*/
 
+/**
+ *
+ * EMAIL ARCHIVE SEARCH
+ * @version 1.5
+ *
+ * @author Frank Koehl  (PM: BlindSide)
+ *
+ * Powered by Zen-Cart (www.zen-cart.com)
+ * Portions Copyright (c) 2005 The Zen-Cart Team
+ *
+ * @license https://www.zen-cart.com/license/2_0.txt
+ *
+ */
 define('HEADING_TITLE', 'Email Archive Manager');
 define('HEADING_SEARCH_INSTRUCT', 'You may search by any combination of the following criteria...');
 
